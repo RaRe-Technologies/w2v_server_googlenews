@@ -69,6 +69,11 @@ class Server(object):
     def __init__(self, fname):
         # load the word2vec model from gzipped file
         self.model = gensim.models.word2vec.Word2Vec.load_word2vec_format(fname, binary=True)
+        try:
+            del self.model.syn0  # not needed => free up mem
+            del self.model.syn1
+        except:
+            pass
 
         # sort all the words in the model, so that we can auto-complete queries quickly
         self.orig_words = [gensim.utils.to_unicode(word) for word in self.model.index2word]
