@@ -1,0 +1,7 @@
+Cython
+Bottleneck
+cherrypy
+numpy
+scipy
+ipython
+gensim
