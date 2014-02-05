@@ -36,7 +36,6 @@ def server_exception_wrap(func):
     """
     @wraps(func)
     def _wrapper(self, *args, **kwargs):
-        cherrypy.response.headers["Access-Control-Allow-Origin"] = "*"
         try:
             # append "success=1" and time taken in milliseconds to the response, on success
             logger.debug("calling server method '%s'" % (func.func_name))
@@ -89,8 +88,7 @@ class Server(object):
         For a given prefix, return 10 words that exist in the model start start with that prefix
 
         """
-        cherrypy.response.headers["Access-Control-Allow-Origin"] = "*"
-        prefix = gensim.utils.to_unicode(kwargs.pop('term', u'')).lower()
+        prefix = gensim.utils.to_unicode(kwargs.pop('term', u'')).strip().lower()
         count = kwargs.pop('count', 10)
         pos = bisect.bisect_left(self.all_words, prefix)
         result = self.orig_words[pos: pos + count]
@@ -109,7 +107,10 @@ class Server(object):
         if isinstance(negative, basestring):
             negative = [negative]
         try:
-            result = self.model.most_similar(positive=filter(None, positive), negative=filter(None, negative), topn=5)
+            result = self.model.most_similar(
+                positive=[gensim.utils.to_utf8(word).strip() for word in positive if word],
+                negative=[gensim.utils.to_utf8(word).strip() for word in negative if word],
+                topn=5)
         except:
             result = []
         logger.info("similars for %s vs. %s: %s" % (positive, negative, result))
@@ -125,7 +126,7 @@ class Server(object):
             result = self.model.doesnt_match(words)
         except:
             result = ''
-        logger.info("dissimilar for %s vs: %s" % (words, result))
+        logger.info("dissimilar for %s: %s" % (words, result))
         return {'dissimilar': result}
 
 
@@ -157,9 +158,6 @@ class Config(object):
         return self.__dict__[name]
 
 
-def CORS():
-    cherrypy.response.headers["Access-Control-Allow-Origin"] = "*"
-
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(module)s:%(lineno)d : %(funcName)s(%(threadName)s) : %(message)s')
@@ -183,7 +181,6 @@ if __name__ == '__main__':
         logging.info("dropping priviledges to %s:%s" % (config_srv.run_user, config_srv.run_group))
         DropPrivileges(cherrypy.engine, gid=config_srv.run_group, uid=config_srv.run_user).subscribe()
 
-    cherrypy.tools.CORS = cherrypy.Tool('before_handler', CORS)
     cherrypy.quickstart(Server(config.MODEL_FILE), config=conf_file)
 
     logging.info("finished running %s" % program)
