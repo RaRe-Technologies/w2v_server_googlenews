@@ -1,7 +1,2 @@
-Cython
-Bottleneck
-cherrypy
-numpy
-scipy
-ipython
-gensim
+CherryPy==5.1.0
+gensim==0.12.3
