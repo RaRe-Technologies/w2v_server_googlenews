@@ -1,9 +1,12 @@
-Word2vec as an HTTP service
-===========================
+# Word2vec as an HTTP service
+
+## What
 
 This repo contains the backend code (server) for our interactive word2vec demo running at https://rare-technologies.com/word2vec-tutorial/#bonus_app. Our web demo uses the [3,000,000 x 300 GoogleNews word2vec model](https://code.google.com/archive/p/word2vec/) trained by Google over 100 billion words, but you can plug in any model you like.
 
 <img src="https://raw.githubusercontent.com/piskvorky/w2v_server_googlenews/master/frontend_screenshot.png" width="400">
+
+## How
 
 The service uses [CherryPy](http://cherrypy.org/) for a fast and minimalist Python web framework and [gensim](https://github.com/RaRe-Technologies/gensim) for the actual heavy lifting. Run with `python runserver.py hetzner.conf`, after installing dependencies `pip install -r requirements.txt`.
 
@@ -28,5 +31,11 @@ curl 'http://127.0.0.1/most_similar?positive%5B%5D=PHP'
 curl 'http://127.0.0.1/most_dissimilar?words%5B%5D=dinner+cereal+breakfast+lunch'
 {"taken": 0.0007932186126708984, "dissimilar": "cereal", "success": 1}
 ```
+
+## Why
+
+On [our gensim mailing list](https://groups.google.com/forum/#!forum/gensim), we've seen repeated questions about how the demo works. It's no rocket science, but we understand the engineering side of wrapping machine learning models, using JSON requests, handling exceptions, logging, dropping user privileges etc can be tricky and confusing if you've never done it before.
+
+We publish this repo in hopes you find it useful, as a blueprint for your own (perhaps non-word2vec) ML service demos.
 
 (c) 2014, [rare-technologies.com](https://rare-technologies.com)

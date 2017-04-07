@@ -6,7 +6,6 @@
 """
 USAGE: %(program)s CONFIG
 
-
 Example:
     ./w2v_server.py w2v_hetzner.conf
 
@@ -31,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 def server_exception_wrap(func):
     """
-    Method decorator to return nicer JSON responses: handle internal server errors & request timings.
+    Method decorator to return nicer JSON responses: handle internal server errors & report request timings.
 
     """
     @wraps(func)
@@ -78,7 +77,7 @@ class Server(object):
         self.orig_words = [gensim.utils.to_unicode(word) for word in self.model.index2word]
         indices = [i for i, _ in sorted(enumerate(self.orig_words), key=lambda item: item[1].lower())]
         self.all_words = [self.orig_words[i].lower() for i in indices]  # lowercased, sorted as lowercased
-        self.orig_words = [self.orig_words[i] for i in indices] # original letter casing, but sorted as if lowercased
+        self.orig_words = [self.orig_words[i] for i in indices]  # original letter casing, but sorted as if lowercased
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
@@ -129,7 +128,6 @@ class Server(object):
         logger.info("dissimilar for %s: %s" % (words, result))
         return {'dissimilar': result}
 
-
     @server_exception_wrap
     @cherrypy.expose
     @cherrypy.tools.json_in()
@@ -144,7 +142,6 @@ class Server(object):
         }
         return result
     ping = status
-#endclass Server
 
 
 class Config(object):
@@ -152,17 +149,17 @@ class Config(object):
         self.__dict__.update(d)
 
     def __getattr__(self, name):
-        return None # unset config values will default to None
+        return None  # unset config values will default to None
 
     def __getitem__(self, name):
         return self.__dict__[name]
 
 
-
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(module)s:%(lineno)d : %(funcName)s(%(threadName)s) : %(message)s')
-    logging.root.setLevel(level=logging.DEBUG)
-    logging.info("running %s" % ' '.join(sys.argv))
+    logging.basicConfig(
+        format='%(asctime)s : %(levelname)s : %(module)s:%(lineno)d : %(funcName)s(%(threadName)s) : %(message)s',
+        level=logging.DEBUG)
+    logger.info("running %s", ' '.join(sys.argv))
 
     program = os.path.basename(sys.argv[0])
 
@@ -183,4 +180,4 @@ if __name__ == '__main__':
 
     cherrypy.quickstart(Server(config.MODEL_FILE), config=conf_file)
 
-    logging.info("finished running %s" % program)
+    logger.info("finished running %s", program)
