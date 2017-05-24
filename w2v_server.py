@@ -67,6 +67,7 @@ class Server(object):
     def __init__(self, fname):
         # load the word2vec model from gzipped file
         self.model = gensim.models.word2vec.Word2Vec.load_word2vec_format(fname, binary=True)
+        self.model.init_sims(replace=True)
         try:
             del self.model.syn0  # not needed => free up mem
             del self.model.syn1
